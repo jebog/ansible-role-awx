@@ -1,0 +1,69 @@
+---
+- name: RedHat | Install firewalld
+  package:
+    name: firewalld
+    state: present
+  when: firewall_ports is defined
+
+- name: RedHat | Start and enable firewalld
+  service:
+    name: firewalld
+    state: started
+    enabled: yes
+  when: firewall_ports is defined
+
+- name: RedHat | Setting firewall rules
+  firewalld:
+    port: "{{ item }}"
+    permanent: true
+    state: enabled
+    immediate: yes
+  with_items:
+    - "{{ firewall_ports | default([]) }}"
+
+
+- name: Disable SELinux
+  selinux:
+    state: disabled
+
+- name: Add EPEL and Docker-CE repositories
+  yum_repository:
+    name: "{{ item.name }}"
+    description: "{{ item.description }}"
+    baseurl: "{{ item.baseurl }}"
+    gpgcheck: "{{ item.gpgcheck }}"
+    gpgkey: "{{ item.gpgkey }}"
+  with_items:
+    - name: epel
+      description: EPEL YUM Repo
+      baseurl: https://download.fedoraproject.org/pub/epel/$releasever/$basearch/
+      gpgcheck: no
+      gpgkey: ""
+    - name: Docker-CE
+      description: Docker-CE Repo
+      baseurl: "{{ docker_yum_repo_url }}"
+      gpgcheck: yes
+      gpgkey: https://download.docker.com/linux/centos/gpg
+
+- name: Validate that wheel group exists
+  group:
+    name: wheel
+    state: present
+
+- name: Allow passwordless sudo in wheel group
+  lineinfile:
+    path: /etc/sudoers
+    state: present
+    regexp: '^wheel'
+    line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+    validate: 'visudo -cf %s'
+
+- name: Setup user {{ awx_user }}
+  user:
+    name: "{{ awx_user }}"
+    state: present
+    generate_ssh_key: yes
+    group: wheel
+    ssh_key_bits: 4096
+    ssh_key_file: .ssh/id_rsa
+    ssh_key_comment: "awx"

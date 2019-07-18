@@ -1,0 +1,9 @@
+---
+- name: PIP | Ensure Pip is installed.
+  package:
+    name: "python-pip"
+    state: present
+
+- name: PIP | Install required packages.
+  pip:
+    name: ['ansible', 'docker', 'docker-compose']

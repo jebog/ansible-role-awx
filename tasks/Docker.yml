@@ -1,0 +1,26 @@
+---
+- name: Docker | Ensure old versions of Docker are not installed.
+  package:
+    name:
+      - docker
+      - docker-common
+      - docker-engine
+    state: absent
+
+- name: Docker | Ensure old versions of Docker are not installed.
+  package:
+    name:
+      - yum-utils
+      - lvm2
+      - device-mapper-persistent-data
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    state: present
+
+- name: Docker | Start and Enable Docker
+  service:
+    name: docker
+    state: started
+    enabled: true
+

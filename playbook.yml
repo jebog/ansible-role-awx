@@ -1,0 +1,6 @@
+---
+
+- hosts: awx-centos
+  become: true
+  role:
+    - awx
