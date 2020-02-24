@@ -1,9 +1,22 @@
 ---
 - name: PIP | Ensure Pip is installed.
   package:
-    name: "python-pip"
+    name: "{{ item }}"
     state: present
+  with_items:
+    - python-pip 
+    - python-devel 
+  tags:
+    - pip
+
+- name: install the package, force upgrade
+  pip:
+    name: pip
+    executable: pip
+    state: latest
 
 - name: PIP | Install required packages.
   pip:
     name: ['ansible', 'docker', 'docker-compose']
+  tags:
+    - pip

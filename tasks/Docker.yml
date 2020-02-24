@@ -7,11 +7,9 @@
       - docker-engine
     state: absent
 
-- name: Docker | Ensure old versions of Docker are not installed.
+- name: Docker | Install Docker and dependencies.
   package:
     name:
-      - yum-utils
-      - lvm2
       - device-mapper-persistent-data
       - docker-ce
       - docker-ce-cli
@@ -23,4 +21,3 @@
     name: docker
     state: started
     enabled: true
-

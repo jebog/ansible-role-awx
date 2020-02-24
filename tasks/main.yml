@@ -18,3 +18,5 @@
 - include_tasks: Docker.yml
 - include_tasks: PIP.yml
 - include_tasks: AWX.yml
+- include_tasks: Firewalld.yml
+  when: awx_enable_firewalld

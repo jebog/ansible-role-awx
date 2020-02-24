@@ -1,9 +1,10 @@
 ---
 awx_package_dependencies:
   - gettext
-  - gcc-c++
   - bzip2
-  - nodejs
   - git
-  - nodejs
   - python-pip
+  - vim
+  - gcc
+  - yum-utils
+  - lvm2

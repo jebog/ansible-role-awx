@@ -1,30 +1,9 @@
 ---
-- name: RedHat | Install firewalld
-  package:
-    name: firewalld
-    state: present
-  when: firewall_ports is defined
-
-- name: RedHat | Start and enable firewalld
-  service:
-    name: firewalld
-    state: started
-    enabled: yes
-  when: firewall_ports is defined
-
-- name: RedHat | Setting firewall rules
-  firewalld:
-    port: "{{ item }}"
-    permanent: true
-    state: enabled
-    immediate: yes
-  with_items:
-    - "{{ firewall_ports | default([]) }}"
-
 
 - name: Disable SELinux
   selinux:
     state: disabled
+  when: disable_selinux
 
 - name: Add EPEL and Docker-CE repositories
   yum_repository:
@@ -45,25 +24,36 @@
       gpgcheck: yes
       gpgkey: https://download.docker.com/linux/centos/gpg
 
-- name: Validate that wheel group exists
-  group:
-    name: wheel
-    state: present
+- name: Manage awx user
+  block:
+    - name: Validate that wheel group exists
+      group:
+        name: "{{ awx_user_group }}"
+        state: present
+      when: awx_user_group is defined
 
-- name: Allow passwordless sudo in wheel group
-  lineinfile:
-    path: /etc/sudoers
-    state: present
-    regexp: '^wheel'
-    line: '%wheel ALL=(ALL) NOPASSWD: ALL'
-    validate: 'visudo -cf %s'
+    - name: Allow passwordless sudo in wheel group
+      lineinfile:
+        path: /etc/sudoers
+        state: present
+        regexp: '^wheel'
+        line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+      when: awx_user_enable_sudo
 
-- name: Setup user {{ awx_user }}
-  user:
-    name: "{{ awx_user }}"
+    - name: Setup user {{ awx_user }}
+      user:
+        name: "{{ awx_user }}"
+        state: present
+        group: "{{ awx_user_group }}"
+        # generate_ssh_key: yes
+        # ssh_key_bits: 4096
+        # ssh_key_file: .ssh/id_rsa
+        # ssh_key_comment: "awx"
+  when: awx_user_enable
+
+- name: Redhat | Install  dependencies.
+  package:
+    name: "{{ item }}"
     state: present
-    generate_ssh_key: yes
-    group: wheel
-    ssh_key_bits: 4096
-    ssh_key_file: .ssh/id_rsa
-    ssh_key_comment: "awx"
+  with_items: "{{ awx_package_dependencies }}"

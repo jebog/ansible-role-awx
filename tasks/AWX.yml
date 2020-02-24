@@ -1,22 +1,46 @@
 ---
 
-- name: Clone AWX into configured directory.
+- name: AWX | Clone AWX into configured directory.
   git:
     repo: "{{ awx_repo }}"
     dest: "{{ awx_repo_dir }}"
     version: "{{ awx_version }}"
-    update: "{{ awx_keep_updated }}"
-    force: yes
+    update: yes
+    force: no
+    clone: yes
     accept_hostkey: yes
 
-- name: Run the AWX installation playbook.
-  command: "ansible-playbook -i inventory install.yml -e postgres_data_dir={{ postgres_data_dir }}"
+- name: AWX | Setup Inventory
+  lineinfile:
+    path: "{{ awx_repo_dir }}/installer/inventory"
+    state: present
+    regexp: '{{ item.regexp }}'
+    line: "{{ item.line }}"
+  with_items: 
+    - line:  "project_data_dir={{ awx_project_data_dir }}"
+      regexp: '^#project_data_dir'
+    - line:  "postgres_data_dir={{ postgres_data_dir }}"
+      regexp: '^#postgres_data_dir'
+    - line: "pg_username={{ pg_username }}"
+      regexp: '^pg_username'
+    - line: "pg_password={{ pg_password }}"
+      regexp: '^pg_password'
+    - line: "pg_database={{ pg_database }}"
+      regexp: '^pg_database'
+    - line: "pg_port={{ pg_port }}"
+      regexp: '^pg_port'
+    - line: "pg_hostname={{ pg_hostname }}"
+      regexp: '^# pg_hostname'
+  when: awx_setup
+
+- name: AWX | Run the AWX installation playbook.
+  command: > 
+      ansible-playbook -i inventory install.yml
   args:
     chdir: "{{ awx_repo_dir }}/installer"
-    creates: /etc/awx_playbook_complete
+    creates: /etc/awx_version
 
-- name: Create a file to mark whether this playbook has completed.
-  file:
-    path: /etc/awx_playbook_complete
-    state: touch
-  changed_when: False
+- name: AWX | Write {{ awx_version }} into file
+  copy:
+    dest: /etc/awx/version
+    content: "{{ awx_version }}"

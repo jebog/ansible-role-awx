@@ -5,17 +5,7 @@
 Installs and configures [AWX](https://github.com/ansible/awx), the open source version of [Ansible Tower](https://www.ansible.com/tower).
 
 ## Requirements
-
-Before this role runs, assuming you want the role to completely set up AWX using it's included installer, you need to make sure the following AWX dependencies are installed:
-
-| Dependency                    | Suggested Role           |
-| ----------------------------- | ------------------------ |
-| EPEL repo (RedHat OSes only)  | `geerlingguy.repo-epel`  |
-| Git                           | `geerlingguy.git`        |
-| Ansible                       | `geerlingguy.ansible`    |
-| Docker                        | `geerlingguy.docker`     |
-| Python Pip                    | `geerlingguy.pip`        |
-| Node.js (6.x)                 | `geerlingguy.nodejs`     |
+This role has no requirements
 
 See this role's `tests/test.yml` playbook for an example that works across many different OSes.
 

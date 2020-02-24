@@ -1,9 +1,37 @@
 ---
+
+# AWX user
+awx_user_enable: false
 awx_user: awx
+awx_user_group: wheel
+awx_user_enable_sudo: false
+
+# git
 awx_repo: https://github.com/ansible/awx.git
 awx_repo_dir: "~/awx"
 awx_version: 6.1.0
 awx_keep_updated: false
+
+# seliux
+disable_selinux: false
+
+# firewall
+awx_enable_firewalld: false
+
+
 awx_run_install_playbook: yes
+
+# database
 postgres_data_dir: /var/lib/pgdocker
+pg_username: awx
+pg_password: awxpass
+pg_database: awx
+pg_port: '"5432"'
+pg_hostname: postgresql
+
+# configurations
+awx_setup: true
+awx_project_data_dir: /var/lib/awx/projects
+
+# docker
 docker_yum_repo_url: https://download.docker.com/linux/centos/7/$basearch/stable
